@@ -10,14 +10,16 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:sensible-default.helloWorld"
+    "onLanguage:javascript",
+    "onLanguage:typescript"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "sensible-default.helloWorld",
-        "title": "Hello World"
+        "command": "sensible-default.openDefaultsDocument",
+        "title": "open defaults document",
+        "category": "sensible-defaults"
       }
     ]
   },
