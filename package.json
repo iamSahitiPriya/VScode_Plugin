@@ -4,7 +4,7 @@
   "description": "VScode plugin to indicate best practices in #defaults",
   "version": "0.0.1",
   "engines": {
-    "vscode": "1.69.2"
+    "vscode": "^1.69.2"
   },
   "categories": [
     "Other"
