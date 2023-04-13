@@ -1,14 +1,18 @@
 import * as vscode from "vscode";
 
-export const greenDecorationType = vscode.window.createTextEditorDecorationType(
-  {
-    color: "#32CD32",
-    backgroundColor: "#696969",
-  }
-);
-
-export const yellowDecorationType =
+export const highlightDecorationType =
   vscode.window.createTextEditorDecorationType({
-    color: "#FFFF00",
-    backgroundColor: "#696969",
+    color: "#790890",
+    fontWeight: "bold",
+  });
+
+export const commentDecorationType =
+  vscode.window.createTextEditorDecorationType({
+    after: {
+      margin: "0 0 0 1em",
+      contentText:
+        "Found related default documents. Hover over the highted text to get more info...",
+      fontStyle: "italic",
+      color: "gray",
+    },
   });

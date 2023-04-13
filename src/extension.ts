@@ -2,45 +2,36 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import {
-  yellowDecorationType,
-  greenDecorationType,
+  highlightDecorationType,
+  commentDecorationType,
 } from "./decorations/decoration";
+import codeTriggers from "./data/codeTriggers";
+import { addCommandToOpenDocument } from "./methods/openDocumentOnCommand";
+import SupportedLanguages from "./methods/SupportedLanguages";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-const sensibleDefaultDocumentUrl =
-  "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1076bcff033_0_1556";
 
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
-    "sensible-default.openDefaultsDocument",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
 
-      vscode.env.openExternal(vscode.Uri.parse(sensibleDefaultDocumentUrl));
-    }
-  );
-  context.subscriptions.push(disposable);
   // Register a new decoration type for the "react" keyword
 
+  addCommandToOpenDocument(context);
+
   const editor = vscode.window.activeTextEditor;
+
   if (editor) {
-    if (isSupportedLanguage(editor.document.languageId)) {
-      updateRTLDecorations(editor, greenDecorationType);
-      updateEnzymeDecorations(editor, yellowDecorationType);
+    if (SupportedLanguages.isSupportedLanguage(editor.document.languageId)) {
+      updateDecorations(editor);
     }
   }
 
   // Listen for text document open events
   vscode.workspace.onDidOpenTextDocument((document) => {
-    console.log(document.fileName);
-    if (isSupportedLanguage(document.languageId)) {
+    if (SupportedLanguages.isSupportedLanguage(document.languageId)) {
       updateDecorationsForDocument(document);
     }
   });
@@ -51,213 +42,132 @@ export function activate(context: vscode.ExtensionContext) {
     if (
       editor &&
       editor.document === event.document &&
-      isSupportedLanguage(event.document.languageId)
+      SupportedLanguages.isSupportedLanguage(event.document.languageId)
     ) {
-      updateRTLDecorations(editor, greenDecorationType);
-      updateEnzymeDecorations(editor, yellowDecorationType);
+      updateDecorations(editor);
     }
   });
 
   // Listen for text editor change events
   vscode.window.onDidChangeActiveTextEditor((editor) => {
-    if (editor && isSupportedLanguage(editor.document.languageId)) {
-      updateRTLDecorations(editor, greenDecorationType);
-      updateEnzymeDecorations(editor, yellowDecorationType);
+    if (
+      editor &&
+      SupportedLanguages.isSupportedLanguage(editor.document.languageId)
+    ) {
+      updateDecorations(editor);
     }
   });
-
-  function isSupportedLanguage(languageId: string): boolean {
-    return languageId === "javascript" || languageId === "typescript";
-  }
 
   function updateDecorationsForDocument(document: vscode.TextDocument) {
     const editor = vscode.window.visibleTextEditors.find(
       (editor) => editor.document === document
     );
     if (editor) {
-      updateRTLDecorations(editor, greenDecorationType);
-      updateEnzymeDecorations(editor, yellowDecorationType);
+      updateDecorations(editor);
     }
   }
 
-  function updateRTLDecorations(
-    editor: vscode.TextEditor,
-    decoration: vscode.TextEditorDecorationType
-  ) {
+  function updateDecorations(editor: vscode.TextEditor) {
     const text = editor.document.getText();
-    const reactKeywordRegex = /@testing-library\/react/g;
-    const decorations: vscode.DecorationOptions[] = [];
 
+    const hightlightDecorations: vscode.DecorationOptions[] = [];
+    const commentDecorations: vscode.DecorationOptions[] = [];
     let match;
-    while ((match = reactKeywordRegex.exec(text)) !== null) {
-      const startPos = editor.document.positionAt(match.index);
-      const endPos = editor.document.positionAt(match.index + match[0].length);
-      const decoration = { range: new vscode.Range(startPos, endPos) };
-      decorations.push(decoration);
+    for (const trigger of codeTriggers) {
+      while ((match = trigger.regex.exec(text)) !== null) {
+        const startPos = editor.document.positionAt(match.index);
+        const endPos = editor.document.positionAt(
+          match.index + match[0].length
+        );
+        const markdownString = new vscode.MarkdownString();
+        markdownString.supportHtml = true;
+        markdownString.appendMarkdown("### Sensible Default Signals");
+        markdownString.appendText("\n");
+        markdownString.appendMarkdown(`#### ${trigger.name}`);
+        markdownString.appendText("\n");
+        for (const doc of trigger.relatedDocuments) {
+          markdownString.appendMarkdown(
+            "- Click on the [link provided](${doc}) for more information."
+          );
+          markdownString.appendText("\n");
+        }
+        markdownString.isTrusted = true;
+        const highlightDecoration = {
+          hoverMessage: markdownString,
+          range: new vscode.Range(startPos, endPos),
+        };
+        hightlightDecorations.push(highlightDecoration);
+        const endOfLine = editor.document.lineAt(startPos.line).range.end;
+        const commentDecoration = {
+          range: new vscode.Range(endOfLine, endOfLine),
+        };
+        commentDecorations.push(commentDecoration);
+      }
+      match = undefined;
     }
-
-    editor.setDecorations(decoration, decorations);
+    editor.setDecorations(commentDecorationType, commentDecorations);
+    editor.setDecorations(highlightDecorationType, hightlightDecorations);
   }
 
-  function updateEnzymeDecorations(
-    editor: vscode.TextEditor,
-    decoration: vscode.TextEditorDecorationType
-  ) {
-    const text = editor.document.getText();
-    const reactKeywordRegex = /\benzyme\b/gi;
-    const decorations: vscode.DecorationOptions[] = [];
+  /*
+  code lens implementation
+ context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      SupportedLanguages.getSupportedLanguage(),
+      {
+        async provideCodeLenses(document) {
+          const codeLenses: vscode.CodeLens[] = [];
 
-    let match;
-    while ((match = reactKeywordRegex.exec(text)) !== null) {
-      const startPos = editor.document.positionAt(match.index);
-      const endPos = editor.document.positionAt(match.index + match[0].length);
-      const decoration = { range: new vscode.Range(startPos, endPos) };
-      decorations.push(decoration);
-    }
+          const text = document.getText();
+          let match;
+          for (const trigger of codeTriggers) {
+            while ((match = trigger.regex.exec(text)) !== null) {
+              const startPos = document.positionAt(match.index);
+              const endPos = document.positionAt(match.index + match[0].length);
+              const range = new vscode.Range(startPos, endPos);
+              codeLenses.push(new vscode.CodeLens(range));
+            }
+            match = undefined;
+          }
 
-    editor.setDecorations(decoration, decorations);
-  }
+          return codeLenses;
+        },
 
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(["javascript", "typescript"], {
-      async provideCodeLenses(document) {
-        const codeLenses: vscode.CodeLens[] = [];
-
-        const text = document.getText();
-        const reactKeywordRegex = /@testing-library\/react/g;
-        let match;
-
-        while ((match = reactKeywordRegex.exec(text)) !== null) {
-          const startPos = document.positionAt(match.index);
-          const endPos = document.positionAt(match.index + match[0].length);
-          const range = new vscode.Range(startPos, endPos);
-
-          codeLenses.push(new vscode.CodeLens(range));
-        }
-
-        return codeLenses;
-      },
-
-      async resolveCodeLens(codeLens) {
-        const showOptionsCommand = {
-          title: "Show related #defaults",
-          command: "extension.showOptions",
-          arguments: [codeLens.range.start],
-        };
-        codeLens.command = showOptionsCommand;
-        return codeLens;
-      },
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(["javascript", "typescript"], {
-      async provideCodeLenses(document) {
-        const codeLenses: vscode.CodeLens[] = [];
-
-        const text = document.getText();
-        const enzymeKeywordRegex = /\benzyme\b/gi;
-        let match;
-
-        while ((match = enzymeKeywordRegex.exec(text)) !== null) {
-          const startPos = document.positionAt(match.index);
-          const endPos = document.positionAt(match.index + match[0].length);
-          const range = new vscode.Range(startPos, endPos);
-
-          codeLenses.push(new vscode.CodeLens(range));
-        }
-
-        return codeLenses;
-      },
-
-      async resolveCodeLens(codeLens) {
-        const showOptionsCommand = {
-          title: "Show related #defaults",
-          command: "extension.showOptions",
-          arguments: [codeLens.range.start],
-        };
-        codeLens.command = showOptionsCommand;
-        return codeLens;
-      },
-    })
-  );
-
-  // Register the showOptions command
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "extension.showOptions",
-      async (position: vscode.Position) => {
-        // Create options dynamically
-        const options = [
-          {
-            label: "Open RTL Default Document",
-            action: () => {
-              vscode.env.openExternal(
-                vscode.Uri.parse(
-                  "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c385a94172_0_0"
-                )
-              );
-              vscode.window.showInformationMessage(
-                "Opening RTL default document"
-              );
-            },
-          },
-        ];
-
-        // Show a custom quick pick with the options
-        const selectedOption = await vscode.window.showQuickPick(options, {
-          placeHolder: "Select any of the following related defaults",
-        });
-
-        if (selectedOption) {
-          // Execute the selected action
-          selectedOption.action();
-        }
+        async resolveCodeLens(codeLens) {
+          const showOptionsCommand = {
+            title: "#Defaults",
+            command: "extension.showOptions",
+          };
+          codeLens.command = showOptionsCommand;
+          return codeLens;
+        },
       }
     )
   );
 
-  /*context.subscriptions.push(
-    vscode.languages.registerHoverProvider(["javascript", "typescript"], {
-      provideHover(document, position) {
-        // Check if the word at the position is "react"
-        const wordRange = document.getWordRangeAtPosition(
-          position,
-          /@testing-library\/react/g
-        );
-        if (wordRange) {
-          // Create a MarkdownString with a command link
-          const hoverMessage = new vscode.MarkdownString(
-            `[Click to show options](command:extension.showOptions)`
-          );
-          hoverMessage.isTrusted = true;
-          return new vscode.Hover(hoverMessage, wordRange);
-        }
-      },
-    })
-  );
-
+  // Register the showOptions command
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.showOptions", async () => {
       // Create options dynamically
       const options = [
         {
-          label: "Option 1",
-          action: async () => {
+          label: "Open RTL Default Document",
+          action: () => {
             vscode.env.openExternal(
-              vscode.Uri.parse(sensibleDefaultDocumentUrl)
+              vscode.Uri.parse(
+                "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c385a94172_0_0"
+              )
             );
             vscode.window.showInformationMessage(
               "Opening RTL default document"
             );
           },
         },
-        
       ];
 
       // Show a custom quick pick with the options
       const selectedOption = await vscode.window.showQuickPick(options, {
-        placeHolder: "Select an option",
+        placeHolder: "Select any of the following related defaults",
       });
 
       if (selectedOption) {
@@ -265,7 +175,8 @@ export function activate(context: vscode.ExtensionContext) {
         selectedOption.action();
       }
     })
-  );*/
+  );
+  */
 }
 
 // This method is called when your extension is deactivated
