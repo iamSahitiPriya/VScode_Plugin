@@ -70,9 +70,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   function updateDecorations(editor: vscode.TextEditor) {
     const text = editor.document.getText();
-
     const hightlightDecorations: vscode.DecorationOptions[] = [];
     const commentDecorations: vscode.DecorationOptions[] = [];
+    const commentedLines: number[] = [];
     let match;
     for (const trigger of codeTriggers) {
       while ((match = trigger.regex.exec(text)) !== null) {
@@ -86,11 +86,15 @@ export function activate(context: vscode.ExtensionContext) {
           range: new vscode.Range(startPos, endPos),
         };
         hightlightDecorations.push(highlightDecoration);
-        const endOfLine = editor.document.lineAt(startPos.line).range.end;
-        const commentDecoration = {
-          range: new vscode.Range(endOfLine, endOfLine),
-        };
-        commentDecorations.push(commentDecoration);
+        //add comment decoration to the line only if it is not present
+        if (commentedLines.find((num) => num === startPos.line) === undefined) {
+          const endOfLine = editor.document.lineAt(startPos.line).range.end;
+          const commentDecoration = {
+            range: new vscode.Range(endOfLine, endOfLine),
+          };
+          commentDecorations.push(commentDecoration);
+          commentedLines.push(startPos.line);
+        }
       }
       match = undefined;
     }
