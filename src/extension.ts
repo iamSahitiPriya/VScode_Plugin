@@ -6,8 +6,9 @@ import {
   commentDecorationType,
 } from "./decorations/decoration";
 import codeTriggers from "./data/codeTriggers";
-import { addCommandToOpenDocument } from "./methods/openDocumentOnCommand";
+import { addCommandToOpenDocument } from "./methods/utils";
 import SupportedLanguages from "./methods/SupportedLanguages";
+import { getMarkDownString } from "./methods/utils";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -79,19 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
         const endPos = editor.document.positionAt(
           match.index + match[0].length
         );
-        const markdownString = new vscode.MarkdownString();
-        markdownString.supportHtml = true;
-        markdownString.appendMarkdown("### Sensible Default Signals");
-        markdownString.appendText("\n");
-        markdownString.appendMarkdown(`#### ${trigger.name}`);
-        markdownString.appendText("\n");
-        for (const doc of trigger.relatedDocuments) {
-          markdownString.appendMarkdown(
-            "- Click on the [link provided](${doc}) for more information."
-          );
-          markdownString.appendText("\n");
-        }
-        markdownString.isTrusted = true;
+        const markdownString = getMarkDownString(trigger.signals);
         const highlightDecoration = {
           hoverMessage: markdownString,
           range: new vscode.Range(startPos, endPos),
@@ -108,75 +97,6 @@ export function activate(context: vscode.ExtensionContext) {
     editor.setDecorations(commentDecorationType, commentDecorations);
     editor.setDecorations(highlightDecorationType, hightlightDecorations);
   }
-
-  /*
-  code lens implementation
- context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      SupportedLanguages.getSupportedLanguage(),
-      {
-        async provideCodeLenses(document) {
-          const codeLenses: vscode.CodeLens[] = [];
-
-          const text = document.getText();
-          let match;
-          for (const trigger of codeTriggers) {
-            while ((match = trigger.regex.exec(text)) !== null) {
-              const startPos = document.positionAt(match.index);
-              const endPos = document.positionAt(match.index + match[0].length);
-              const range = new vscode.Range(startPos, endPos);
-              codeLenses.push(new vscode.CodeLens(range));
-            }
-            match = undefined;
-          }
-
-          return codeLenses;
-        },
-
-        async resolveCodeLens(codeLens) {
-          const showOptionsCommand = {
-            title: "#Defaults",
-            command: "extension.showOptions",
-          };
-          codeLens.command = showOptionsCommand;
-          return codeLens;
-        },
-      }
-    )
-  );
-
-  // Register the showOptions command
-  context.subscriptions.push(
-    vscode.commands.registerCommand("extension.showOptions", async () => {
-      // Create options dynamically
-      const options = [
-        {
-          label: "Open RTL Default Document",
-          action: () => {
-            vscode.env.openExternal(
-              vscode.Uri.parse(
-                "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c385a94172_0_0"
-              )
-            );
-            vscode.window.showInformationMessage(
-              "Opening RTL default document"
-            );
-          },
-        },
-      ];
-
-      // Show a custom quick pick with the options
-      const selectedOption = await vscode.window.showQuickPick(options, {
-        placeHolder: "Select any of the following related defaults",
-      });
-
-      if (selectedOption) {
-        // Execute the selected action
-        selectedOption.action();
-      }
-    })
-  );
-  */
 }
 
 // This method is called when your extension is deactivated

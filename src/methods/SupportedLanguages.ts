@@ -11,6 +11,12 @@ export default {
     );
   },
   getSupportedLanguage: (): DocumentSelector => {
-    return ["javascript", "typescript", "json"];
+    return [
+      "javascript",
+      "typescript",
+      "json",
+      "javascriptreact",
+      "typescriptreact",
+    ];
   },
 };
