@@ -77,6 +77,10 @@ export function activate(context: vscode.ExtensionContext) {
     for (const trigger of codeTriggers) {
       while ((match = trigger.regex.exec(text)) !== null) {
         const startPos = editor.document.positionAt(match.index);
+        const lineText = editor.document.lineAt(startPos.line).text;
+        if (lineText.slice(0, 2) === "//") {
+          continue;
+        }
         const endPos = editor.document.positionAt(
           match.index + match[0].length
         );
