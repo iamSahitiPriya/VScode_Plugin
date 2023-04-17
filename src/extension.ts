@@ -9,6 +9,7 @@ import codeTriggers from "./data/codeTriggers";
 import { addCommandToOpenDocument } from "./methods/utils";
 import SupportedLanguages from "./methods/SupportedLanguages";
 import { getMarkDownString } from "./methods/utils";
+import fileTriggers from "./data/fileTriggers";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -26,7 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   if (editor) {
     if (SupportedLanguages.isSupportedLanguage(editor.document.languageId)) {
-      updateDecorations(editor);
+      notifyOnFileTriggers(editor);
+      addStylesToCodeTriggers(editor);
     }
   }
 
@@ -45,7 +47,8 @@ export function activate(context: vscode.ExtensionContext) {
       editor.document === event.document &&
       SupportedLanguages.isSupportedLanguage(event.document.languageId)
     ) {
-      updateDecorations(editor);
+      notifyOnFileTriggers(editor);
+      addStylesToCodeTriggers(editor);
     }
   });
 
@@ -55,7 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
       editor &&
       SupportedLanguages.isSupportedLanguage(editor.document.languageId)
     ) {
-      updateDecorations(editor);
+      notifyOnFileTriggers(editor);
+      addStylesToCodeTriggers(editor);
     }
   });
 
@@ -64,11 +68,29 @@ export function activate(context: vscode.ExtensionContext) {
       (editor) => editor.document === document
     );
     if (editor) {
-      updateDecorations(editor);
+      notifyOnFileTriggers(editor);
+      addStylesToCodeTriggers(editor);
     }
   }
 
-  function updateDecorations(editor: vscode.TextEditor) {
+  async function notifyOnFileTriggers(editor: vscode.TextEditor) {
+    const fileName = editor.document.fileName;
+    for (const trigger of fileTriggers) {
+      if (fileName.includes(trigger.filePattern)) {
+        const result = await vscode.window.showInformationMessage(
+          "Found default document related to this file",
+          "Open"
+        );
+        if (result) {
+          vscode.env.openExternal(
+            vscode.Uri.parse(trigger.signals[0].document)
+          );
+        }
+      }
+    }
+  }
+
+  function addStylesToCodeTriggers(editor: vscode.TextEditor) {
     const text = editor.document.getText();
     const hightlightDecorations: vscode.DecorationOptions[] = [];
     const commentDecorations: vscode.DecorationOptions[] = [];

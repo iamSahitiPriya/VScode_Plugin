@@ -1,9 +1,9 @@
 export default class Signal {
-  name: String;
-  description: String;
-  document: String;
+  name: string;
+  description: string;
+  document: string;
 
-  constructor(name: String, description: String, document: String) {
+  constructor(name: string, description: string, document: string) {
     this.name = name;
     this.description = description;
     this.document = document;
