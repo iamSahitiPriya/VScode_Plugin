@@ -1,5 +1,5 @@
 import Signal from "../types/Signal";
-import Trigger from "../types/Trigger";
+import Trigger from "../types/CodeTrigger";
 
 export default [
   new Trigger("React Testing Library Trigger", /@testing-library\/react/g, [

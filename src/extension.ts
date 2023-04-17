@@ -85,6 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.env.openExternal(
             vscode.Uri.parse(trigger.signals[0].document)
           );
+          break;
         }
       }
     }
