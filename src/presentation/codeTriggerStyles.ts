@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { commentDecorationType, highlightDecorationType } from "../decorations/decoration";
-import Signal from "../types/Signal";
+import Signal from "../models/Signal";
 import { getMarkDownString } from "../utils/Comments";
 import { addCommentsToLine, getCodeTriggerRanges, getCommentDecorationsOptions, getHighlightDecorationsOption } from "./helper";
 

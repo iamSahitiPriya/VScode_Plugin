@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import signals from "./data/signals";
 import  addCommandToOpenDocument  from "./commands/openDocument";
 import SupportedLanguages from "./utils/SupportedLanguages";
-import Signal from "./types/Signal";
+import Signal from "./models/Signal";
 import addStylesToCodeTriggers from "./presentation/codeTriggerStyles";
 import { activeTextEditorChangeHandler, openDocumentHandler, textChangeHandler } from "./handlers/handlers";
 import notifyOnFileTriggers from "./presentation/fileTriggerStyles";

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import Signal from "../types/Signal";
+import Signal from "../models/Signal";
 
 export const getMarkDownString = (signal: Signal) => {
   const markdownString = new vscode.MarkdownString();

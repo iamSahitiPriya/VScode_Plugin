@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import Signal from "../types/Signal";
+import Signal from "../models/Signal";
 
 export default async (signal: Signal,context:vscode.ExtensionContext) => {
     const currentSignals: Signal[] =

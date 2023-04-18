@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import Signal from "../types/Signal";
+import Signal from "../models/Signal";
 export default async function notifyOnFileTriggers(editor: vscode.TextEditor,context: vscode.ExtensionContext) {
     const fileName = editor.document.fileName;
     const signals: Signal[] = context.workspaceState.get("signals") || [];

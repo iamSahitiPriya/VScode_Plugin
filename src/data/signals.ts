@@ -1,4 +1,4 @@
-import Signal from "../types/Signal";
+import Signal from "../models/Signal";
 
 export default [
   new Signal(
