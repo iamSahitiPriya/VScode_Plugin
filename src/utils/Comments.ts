@@ -21,5 +21,3 @@ export const getMarkDownString = (signal: Signal) => {
   markdownString.isTrusted = true;
   return markdownString;
 };
-
-
