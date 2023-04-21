@@ -1,9 +1,14 @@
-# Change Log
+# CHANGELOG
 
-All notable changes to the "sensible-default" extension will be documented in this file.
+## [1.0.0] - 2023-04-21
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+### Added
 
-## [Unreleased]
-
-- Initial release
+- Highlighting for the keywords that are part of the signals
+- Dialog box to convey the signals associated with the keywords
+- Command to open the defaults document
+- Navigate to the associated signal document from the dialog box / Quick Picks
+- Ignore a particular signal from the dialog box
+- Information box for the files associated with the signal
+- Ignore all associated signals for that particular file from the information box
+- Quick picks to display various signals associated with the file
