@@ -18,7 +18,7 @@ Open any front end project which uses any of the following languages:
 
 - javascript
 - typescript
-  now, the extension would highlight the words for which there's a signal associated with it.
+<p>now, the extension would highlight the words for which there's a signal associated with it.</p>
 
 ![Text Highlight](images/highlight.png)
 
