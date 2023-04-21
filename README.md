@@ -33,3 +33,7 @@ For ignoring a particular signal, click on the **here** in the details section w
 The extension would also show an information section when we navigate to a file which is a part of the signal.
 
 ![Show signals associated with a file](images/signalsfiles.gif)
+
+The extension also provides a command **"open defaults document"** which when entered on the command palette would open up the document.
+
+![Command to open the document](images/openingDocument.gif)
