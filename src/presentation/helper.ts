@@ -41,8 +41,6 @@ export const getHighlightDecorationsOption = (
   markdownString: vscode.MarkdownString
 ) => {
   const options = ranges.map((range) => {
-    console.log(range.start.line);
-
     return {
       hoverMessage: markdownString,
       range: range,
@@ -83,6 +81,7 @@ export const getActiveSignalsFromFileTriggers = (
     const triggers = signal.fileTriggers;
     for (const trigger of triggers) {
       if (fileName.includes(trigger)) {
+        console.log(fileName);
         activeSignals.push(signal);
         break;
       }

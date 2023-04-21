@@ -1,71 +1,35 @@
-# sensible-default README
+# Sensible Front End Defaults extension for Visual Studio Code
 
-This is the README for your extension "sensible-default". After writing up a brief description, we recommend including the following sections.
+This [Visual Studio Code](https://code.visualstudio.com/) (VS Code) extension provides the Thoughtworker with the ability to get the related default documents which exhibits Thoughtworks best practices which are also known as signals. The features includes detection of certain signals that can be or is incorporated in the current code base, navigation to the related default document.This way, Thoughtworkers can make sure that they are aware of such best practices.
 
-## Features
+# Getting started
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Inorder to get started with the extension,
 
-For example if there is an image subfolder under your extension project workspace:
+1. Install the extension from within VS Code, or download it from the marketplace. Please make sure that you have VS Code of version **1.69.2** or above in order for this extension to work.
+2. Open any of the project which is written in either of the following languages:
+   - javascript
+   - typescript
+3. Now, the extension would be active and should provide the user with suggestions when it detects a scope for providing one of the best practices.
 
-\!\[feature X\]\(images/feature-x.png\)
+# Usage
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Open any front end project which uses any of the following languages:
 
-## Requirements
+- javascript
+- typescript
+  now, the extension would highlight the words for which there's a signal associated with it.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+![Text Highlight](images/highlight.png)
 
-## Extension Settings
+Inorder to view much details about the signals associated with the highlighted text, hover over the text. Clicking on the **here** in the details section where is says to take to the document would open the document in the browser.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+![Signal Hint](images/giveHint.gif)
 
-For example:
+For ignoring a particular signal, click on the **here** in the details section where is says to ignore.
 
-This extension contributes the following settings:
+![Ignore Signal](images/ignore1.gif)
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+The extension would also show an information section when we navigate to a file which is a part of the signal.
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+![Show signals associated with a file](images/signalsfiles.gif)

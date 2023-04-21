@@ -38,7 +38,6 @@ export default function addStylesToCodeTriggers(
     lineTriggerCountMap
   );
   commentDecorationOptions.forEach((option) => {
-    console.log(option);
     commentDecorations.push(option);
   });
   editor.setDecorations(commentDecorationType, commentDecorations);
