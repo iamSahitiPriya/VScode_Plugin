@@ -33,7 +33,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "deploy": "vsce publish --yarn --baseContentUrl https://github.com/twlabs/hash-defaults-vscode/blob/main/ --allow-missing-repository --baseImagesUrl https://github.com/twlabs/hash-defaults-vscode/blob/main/"
+    "deploy": "vsce publish --baseContentUrl https://github.com/twlabs/hash-defaults-vscode/blob/main/ --allow-missing-repository --baseImagesUrl https://github.com/twlabs/hash-defaults-vscode/blob/main/"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
