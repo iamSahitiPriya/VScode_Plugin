@@ -3,20 +3,20 @@ orbs:
   node: circleci/node@5.0.2
 
 jobs:
-  tests:
+  publish:
     executor: node/default
     steps:
       - run:
-          command: echo "here goes your test steps"
+          command: echo "here goes your deploy steps"
       - checkout
       - node/install-packages:
           pkg-manager: npm
       - run:
-          command: xvfb-run -a npm test
-          name: Run tests
+          command: npm run deploy
+          name: Deploy Extension
 
 workflows:
   version: 2
-  build-test-deploy:
+  publish-extension:
     jobs:
-      - tests
+      - publish
