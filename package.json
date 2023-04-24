@@ -1,6 +1,7 @@
 {
   "name": "sensible-default",
-  "displayName": "sensible-default",
+  "displayName": "sensible-defaults",
+  "publisher": "tw-jaseem",
   "description": "VScode plugin to indicate best practices in #defaults",
   "version": "1.0.0",
   "engines": {
