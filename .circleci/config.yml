@@ -1,24 +1,22 @@
 version: 2.1
-jobs:
-  build:
-    docker:
-      - image: docker:stable
-    steps:
-      - run:
-          command: echo "here goes your build steps"
+orbs:
+  node: circleci/node@5.0.2
 
+jobs:
   tests:
-    docker:
-      - image: docker:stable
+    executor: node/default
     steps:
       - run:
-          command: echo "here goes your tests steps"
+          command: echo "here goes your test steps"
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm run test
+          name: Run tests
 
 workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - build
-      - tests:
-          requires:
-            - build
+      - tests
