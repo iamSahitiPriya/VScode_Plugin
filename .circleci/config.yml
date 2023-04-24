@@ -10,7 +10,7 @@ jobs:
           command: echo "here goes your deploy steps"
       - checkout
       - node/install-packages:
-          pkg-manager: npm
+          pkg-manager: yarn
       - run:
           command: npm run deploy
           name: Deploy Extension
