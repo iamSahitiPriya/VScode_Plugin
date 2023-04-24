@@ -19,4 +19,7 @@ workflows:
   version: 2
   publish-extension:
     jobs:
-      - publish
+      - publish:
+          filters:
+            tags:
+              only: /^v.*/i
