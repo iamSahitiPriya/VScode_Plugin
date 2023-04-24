@@ -27,4 +27,20 @@ export default [
       /@reduxjs\/toolkit/g,
     ]
   ),
+  new Signal(
+    "CSS in JS to manage CSS at scale",
+    "Scope CSS to your UI components to scale CSS in large code-bases and avoid naming collisions.",
+    "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c303425273_0_14",
+    ["module.css", ".scss"],
+    [
+      /\bstyled-components\b/g,
+      /@emotion\/styled/g,
+      /@emotion\/react/g,
+      /\breact-jss\b/g,
+      /\bstyled-system\b/g,
+      /\bstitches\b/g,
+      /\buseTheme\b/g,
+      /\bstyled\.\w+/g,
+    ]
+  ),
 ];

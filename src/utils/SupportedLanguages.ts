@@ -7,7 +7,9 @@ export default {
       languageId === "typescript" ||
       languageId === "json" ||
       languageId === "javascriptreact" ||
-      languageId === "typescriptreact"
+      languageId === "typescriptreact" ||
+      languageId === "css" ||
+      languageId === "scss"
     );
   },
   getSupportedLanguage: (): DocumentSelector => {
@@ -17,6 +19,8 @@ export default {
       "json",
       "javascriptreact",
       "typescriptreact",
+      "css",
+      "scss",
     ];
   },
 };

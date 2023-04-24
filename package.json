@@ -11,6 +11,8 @@
     "Other"
   ],
   "activationEvents": [
+    "onLanguage:css",
+    "onLanguage:scss",
     "onLanguage:javascript",
     "onLanguage:json",
     "onLanguage:typescript",
