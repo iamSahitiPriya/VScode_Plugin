@@ -25,3 +25,4 @@ workflows:
               only: /^v.*/i
             branches:
               ignore: /.*/
+              
