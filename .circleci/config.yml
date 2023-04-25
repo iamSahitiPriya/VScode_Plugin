@@ -22,7 +22,6 @@ workflows:
       - publish:
           filters:
             tags:
-              only: /^v.*/i
-            branches:
-              ignore: /.*/
-              
+              only: /^v.*/
+            # branches:
+            #   ignore: /.*/
