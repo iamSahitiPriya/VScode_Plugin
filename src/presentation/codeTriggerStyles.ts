@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import * as vscode from "vscode";
 import {
   commentDecorationType,
@@ -6,7 +7,7 @@ import {
 import Signal from "../models/Signal";
 import { getMarkDownString } from "../utils/Comments";
 import {
-  addCommentsToLine,
+  updateLineTriggerMap,
   getCodeTriggerRanges,
   getCommentDecorationsOptions,
   getHighlightDecorationsOption,
@@ -17,29 +18,21 @@ export default function addStylesToCodeTriggers(
   context: vscode.ExtensionContext
 ) {
   const text = editor.document.getText();
-  const hightlightDecorations: vscode.DecorationOptions[] = [];
-  const commentDecorations: vscode.DecorationOptions[] = [];
+  const hightlightDecorationsOptions: vscode.DecorationOptions[] = [];
   const lineTriggerCountMap: Map<number, number> = new Map();
   const signals: Signal[] = context.workspaceState.get("signals") || [];
   for (const signal of signals) {
     const ranges = getCodeTriggerRanges(editor, text, signal);
-    addCommentsToLine(lineTriggerCountMap, ranges);
+    updateLineTriggerMap(lineTriggerCountMap, ranges);
     const markdownString = getMarkDownString(signal);
-    const highlightDecorationOptions = getHighlightDecorationsOption(
-      ranges,
-      markdownString
-    );
-    highlightDecorationOptions.forEach((options) =>
-      hightlightDecorations.push(options)
+    getHighlightDecorationsOption(ranges, markdownString).forEach((options) =>
+      hightlightDecorationsOptions.push(options)
     );
   }
-  const commentDecorationOptions = getCommentDecorationsOptions(
-    editor,
-    lineTriggerCountMap
+
+  editor.setDecorations(
+    commentDecorationType,
+    getCommentDecorationsOptions(editor, lineTriggerCountMap)
   );
-  commentDecorationOptions.forEach((option) => {
-    commentDecorations.push(option);
-  });
-  editor.setDecorations(commentDecorationType, commentDecorations);
-  editor.setDecorations(highlightDecorationType, hightlightDecorations);
+  editor.setDecorations(highlightDecorationType, hightlightDecorationsOptions);
 }

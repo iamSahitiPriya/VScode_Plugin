@@ -5,11 +5,7 @@ export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
   map: Map<number, number>
 ) => {
-  const options: {
-    hoverMessage?: vscode.MarkdownString;
-    range: vscode.Range;
-  }[] = [];
-
+  const options: vscode.DecorationOptions[] = [];
   map.forEach((value, key) => {
     const lineIndex = key;
     const endOfLine = editor.document.lineAt(lineIndex).range.end;
@@ -20,7 +16,7 @@ export const getCommentDecorationsOptions = (
   return options;
 };
 
-export const addCommentsToLine = (
+export const updateLineTriggerMap = (
   map: Map<number, number>,
   ranges: vscode.Range[]
 ) => {
