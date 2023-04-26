@@ -5,7 +5,7 @@ import signals from "./data/signals";
 import addCommandToOpenDocument from "./commands/openDocument";
 import addCommandToRemoveSignal from "./commands/removeSignal";
 import addCommandToOpenQuickPicks from "./commands/openQuickPicks";
-import SupportedLanguages from "./utils/SupportedLanguages";
+import SupportedLanguages from "./utils/supportedLanguages";
 import addStylesToCodeTriggers from "./presentation/codeTriggerStyles";
 import {
   activeTextEditorChangeHandler,
