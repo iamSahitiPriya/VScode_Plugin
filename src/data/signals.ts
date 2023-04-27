@@ -36,7 +36,7 @@ export default [
     "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c303425273_0_28",
     [],
     [
-      /import\s+\{(?=.*(?:Button|Modal|Header|Input|Checkbox|RadioButton|Dropdown|Textarea|Box|Tooltip|Accordion|ProgressBar|Slider|Table|Pagination|Alert|Badge)).*\}\s+from\s+['"]((?!@chakra-ui\/\w+|@fluentui\/\w+|@fluentui\/react\/\w+\/\w+|@mui\/material)[^"']+)['"]/gi,
+      /import\s+\{(?=.*(?:Button|Modal|Header|Input|Checkbox|RadioButton|Dropdown|Textarea|Box|Tooltip|Accordion|ProgressBar|Slider|Table|Pagination|Alert|Badge)).*\}\s+from\s+['"]((?!@chakra-ui\/\w+|@fluentui\/\w+|@fluentui\/react\/\w+\/\w+|@mui\/material|\bantd\b)[^"']+)['"]/gi,
     ]
   ),
   //signal4
@@ -51,6 +51,7 @@ export default [
       /@fluentui\/\w+/g,
       /@fluentui\/react\/\w+\/\w+/g,
       /@mui\/material/g,
+      /\bantd\b/g,
     ]
   ),
   //signal5

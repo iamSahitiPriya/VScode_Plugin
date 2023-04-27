@@ -76,7 +76,7 @@ export const getActiveSignalsFromFileTriggers = (
   for (const signal of signals) {
     const triggers = signal.fileTriggers;
     for (const trigger of triggers) {
-      if (fileName.includes(trigger)) {
+      if (fileName.toLowerCase().includes(trigger)) {
         activeSignals.push(signal);
         break;
       }
