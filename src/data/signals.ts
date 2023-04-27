@@ -68,7 +68,6 @@ export default [
       /\bstitches\b/g,
       /\buseTheme\b/g,
       /\btailwindcss\b/g,
-      /\bemotion\b/g,
       /\bwindicss\b/g,
       /\bstyled\(['"](\w+)['"]\)/g,
       /\bstyled\.\w+/g,

@@ -3,7 +3,7 @@
   "displayName": "sensible-defaults",
   "publisher": "tw-jaseem",
   "description": "VScode plugin to indicate best practices in #defaults",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.69.2"
   },

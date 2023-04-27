@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [1.0.1] - 2023-04-27
+
+### Added
+
+- Increased number of supported signals
+
 ## [1.0.0] - 2023-04-21
 
 ### Added
