@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import addStylesToCodeTriggers from "../presentation/codeTriggerStyles";
 import notifyOnFileTriggers from "../presentation/fileTriggerStyles";
-import SupportedLanguages from "../utils/supportedLanguages";
+import SupportedLanguages from "../utils/SupportedLanguages";
 
 export const textChangeHandler = (
   event: vscode.TextDocumentChangeEvent,
