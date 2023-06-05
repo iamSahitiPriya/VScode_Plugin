@@ -69,16 +69,26 @@ export const getCodeTriggerRanges = (
   return ranges;
 };
 
-export const jamStackSignal = () =>{
+export const jamStackSignal = () => {
   const rootPath = vscode.workspace.rootPath;
-  if(rootPath){    
+  if (rootPath) {
     const packageJsonPath = path.join(rootPath, 'package.json');
-    const creationDate = fs.statSync(packageJsonPath).birthtime;
-    const currentDate = new Date();
-    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());        
-    return creationDate>threeMonthsAgo;
+    return isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath);
   }
   return false;
+
+  function isNewlyCreated(packageJsonPath: string) {
+    const creationDate = fs.statSync(packageJsonPath).birthtime;
+    const currentDate = new Date();
+    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
+    return creationDate > threeMonthsAgo;
+  }
+
+  function isMarkedParserFound(packageJsonPath: string) {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+    const isDependencyAdded = packageJson.dependencies && packageJson.dependencies['marked'];
+    return isDependencyAdded;
+  }
 };
 
 
@@ -87,10 +97,10 @@ export const getActiveSignalsFromFileTriggers = (
   signals: Signal[]
 ) => {
   const activeSignals: Signal[] = [];
-  if(jamStackSignal()){
-    const jamStackSignal = signals.find(eachSignal => eachSignal.name="JAMStack for content-heavy sites");
-    if(jamStackSignal){
-    activeSignals.push(jamStackSignal);
+  if (jamStackSignal()) {
+    const jamStackSignal = signals.find(eachSignal => eachSignal.name = "JAMStack for content-heavy sites");
+    if (jamStackSignal) {
+      activeSignals.push(jamStackSignal);
     }
   }
   const fileName = editor.document.fileName;
@@ -119,4 +129,5 @@ export const removeActiveSignals = async (
     await context.workspaceState.update("signals", filteredSignals);
   }
 };
+
 
