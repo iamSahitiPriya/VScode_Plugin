@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import Signal from "../models/Signal";
+import * as path from 'path';
+import * as fs from 'fs';
 
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
@@ -67,11 +69,30 @@ export const getCodeTriggerRanges = (
   return ranges;
 };
 
+export const jamStackSignal = () =>{
+  const rootPath = vscode.workspace.rootPath;
+  if(rootPath){    
+    const packageJsonPath = path.join(rootPath, 'package.json');
+    const creationDate = fs.statSync(packageJsonPath).birthtime;
+    const currentDate = new Date();
+    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());        
+    return creationDate>threeMonthsAgo;
+  }
+  return false;
+};
+
+
 export const getActiveSignalsFromFileTriggers = (
   editor: vscode.TextEditor,
   signals: Signal[]
 ) => {
   const activeSignals: Signal[] = [];
+  if(jamStackSignal()){
+    const jamStackSignal = signals.find(eachSignal => eachSignal.name="JAMStack for content-heavy sites");
+    if(jamStackSignal){
+    activeSignals.push(jamStackSignal);
+    }
+  }
   const fileName = editor.document.fileName;
   for (const signal of signals) {
     const triggers = signal.fileTriggers;
@@ -98,3 +119,4 @@ export const removeActiveSignals = async (
     await context.workspaceState.update("signals", filteredSignals);
   }
 };
+

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import Signal from "../models/Signal";
+import { log } from "console";
 
 export default (context: vscode.ExtensionContext) => {
   context.subscriptions.push(
@@ -7,7 +8,6 @@ export default (context: vscode.ExtensionContext) => {
       "sensible-default.openQuickPicks",
       async (signals: Signal[]) => {
         const signalNames = signals.map((signal) => signal.name);
-
         const selectedSignalName = await vscode.window.showQuickPick(
           signalNames,
           {
@@ -21,7 +21,7 @@ export default (context: vscode.ExtensionContext) => {
         const selectedSignal = signals.find(
           (signal) => signal.name === selectedSignalName
         );
-
+        
         if (selectedSignal) {
           vscode.env.openExternal(vscode.Uri.parse(selectedSignal.document));
         }

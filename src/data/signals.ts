@@ -74,4 +74,11 @@ export default [
       /\bstyle=\{\{(?:(?:(?!\}\}).)*:)+(?:(?!\}\}).)*\}\}/g,
     ]
   ),
+  new Signal(
+    "JAMStack for content-heavy sites",
+    "Use JAMStack for delivering static content for content-heavy sites to produce faster, scalable and more secure applications. ",
+    "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g128dad69f88_0_75",
+    [],
+    []
+  )
 ];
