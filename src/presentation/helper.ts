@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import Signal from "../models/Signal";
 import * as path from 'path';
 import * as fs from 'fs';
+import glob = require("glob");
+import { log } from "console";
+
 
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
@@ -72,22 +75,41 @@ export const getCodeTriggerRanges = (
 export const jamStackSignal = () => {
   const rootPath = vscode.workspace.rootPath;
   if (rootPath) {
-    const packageJsonPath = path.join(rootPath, 'package.json');
-    return isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath);
+    const packageJson = glob.sync('**/package.json', {
+      cwd: rootPath,
+      nodir: true,
+      ignore: '**/node_modules/**'
+    });
+    const packageJsonPath = path.join(rootPath, packageJson[0]);
+    return isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();
   }
   return false;
 
   function isNewlyCreated(packageJsonPath: string) {
-    const creationDate = fs.statSync(packageJsonPath).birthtime;
-    const currentDate = new Date();
-    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
-    return creationDate > threeMonthsAgo;
+    // const creationDate = fs.statSync(packageJsonPath).birthtime;
+    // const currentDate = new Date();
+    // const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
+    // console.log("cdate", creationDate);
+    // console.log("3date", threeMonthsAgo);
+    // return creationDate > threeMonthsAgo;
+    return false;
   }
 
   function isMarkedParserFound(packageJsonPath: string) {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
     const isDependencyAdded = packageJson.dependencies && packageJson.dependencies['marked'];
     return isDependencyAdded;
+  }
+
+  function isCmsToolInstalled() {
+    const projectDirectoryPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+    const htaccessFiles = glob.sync('**/.htaccess', {
+      cwd: projectDirectoryPath,
+      nodir: true,
+      ignore: '**/node_modules/**'
+    });
+    return htaccessFiles.length > 0;
   }
 };
 
