@@ -3,7 +3,7 @@ import Signal from "../models/Signal";
 import * as path from 'path';
 import * as fs from 'fs';
 import glob = require("glob");
-import { log } from "console";
+import simpleGit, { LogResult } from 'simple-git';
 
 
 export const getCommentDecorationsOptions = (
@@ -81,36 +81,9 @@ export const jamStackSignal = () => {
       ignore: '**/node_modules/**'
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
-    return isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();
+    return isNewlyCreated() || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();
   }
   return false;
-
-  function isNewlyCreated(packageJsonPath: string) {
-    // const creationDate = fs.statSync(packageJsonPath).birthtime;
-    // const currentDate = new Date();
-    // const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
-    // console.log("cdate", creationDate);
-    // console.log("3date", threeMonthsAgo);
-    // return creationDate > threeMonthsAgo;
-    return false;
-  }
-
-  function isMarkedParserFound(packageJsonPath: string) {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-    const isDependencyAdded = packageJson.dependencies && packageJson.dependencies['marked'];
-    return isDependencyAdded;
-  }
-
-  function isCmsToolInstalled() {
-    const projectDirectoryPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-
-    const htaccessFiles = glob.sync('**/.htaccess', {
-      cwd: projectDirectoryPath,
-      nodir: true,
-      ignore: '**/node_modules/**'
-    });
-    return htaccessFiles.length > 0;
-  }
 };
 
 
@@ -152,4 +125,39 @@ export const removeActiveSignals = async (
   }
 };
 
+export const isNewlyCreated = () => {
+  let creationDate: string | undefined = '';
+  const repoPath = vscode.workspace.rootPath;
 
+  const git = simpleGit(repoPath);
+
+  git.log(['--reverse']).then((log: LogResult) => {
+    const firstCommit = log.latest?.date;
+    creationDate = firstCommit;
+    const currentDate = new Date();
+    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
+    if (creationDate) {
+      return new Date(creationDate) > threeMonthsAgo;
+    }
+  }).catch((err) => {
+    vscode.window.showErrorMessage('Error retreiving logs .Please initialize git.', err);
+  });
+  return false;
+};
+
+export const isMarkedParserFound = (packageJsonPath: string) => {
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+  const isDependencyAdded = packageJson.dependencies && packageJson.dependencies['marked'];
+  return isDependencyAdded;
+};
+
+export const isCmsToolInstalled = () => {
+  const projectDirectoryPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+  const htaccessFiles = glob.sync('**/.htaccess', {
+    cwd: projectDirectoryPath,
+    nodir: true,
+    ignore: '**/node_modules/**'
+  });
+  return htaccessFiles.length > 0;
+};
