@@ -1,5 +1,5 @@
 import Signal from "../models/Signal";
-import { checkForMicroFrontendSignal } from "../presentation/helper";
+import { checkForMicroFrontendSignal, jamStackSignal } from "../presentation/helper";
 
 export default [
   //signal1
@@ -80,7 +80,8 @@ export default [
     "Use JAMStack for delivering static content for content-heavy sites to produce faster, scalable and more secure applications. ",
     "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g128dad69f88_0_75",
     [],
-    []
+    [],
+    jamStackSignal()
   ),
   new Signal(
     "Micro front-ends for multiple teams",

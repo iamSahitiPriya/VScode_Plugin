@@ -3,8 +3,10 @@ import Signal from "../models/Signal";
 import * as path from "path";
 import * as fs from "fs";
 import glob = require("glob");
+import { execSync } from 'child_process';
 import simpleGit, { LogResult } from "simple-git";
 
+let promiseResult:boolean[] = [];
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
   map: Map<number, number>
@@ -81,7 +83,7 @@ export const jamStackSignal = () => {
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
     return (
-      isNewlyCreated() ||
+      isNewlyCreated(packageJsonPath) ||
       isMarkedParserFound(packageJsonPath) ||
       isCmsToolInstalled()
     );
@@ -94,14 +96,6 @@ export const getActiveSignalsFromFileTriggers = (
   signals: Signal[]
 ) => {
   const activeSignals: Signal[] = [];
-  if (jamStackSignal()) {
-    const jamStackSignal = signals.find(
-      (eachSignal) => (eachSignal.name = "JAMStack for content-heavy sites")
-    );
-    if (jamStackSignal) {
-      activeSignals.push(jamStackSignal);
-    }
-  }
   const fileName = editor.document.fileName;
   for (const signal of signals) {
     const triggers = signal.fileTriggers;
@@ -134,34 +128,27 @@ export const removeActiveSignals = async (
   }
 };
 
-export const isNewlyCreated = () => {
-  let creationDate: string | undefined = "";
+export const isNewlyCreated = (packageJsonPath:string) => {
   const repoPath = vscode.workspace.rootPath;
 
   const git = simpleGit(repoPath);
 
-  git
-    .log(["--reverse"])
-    .then((log: LogResult) => {
-      const firstCommit = log.latest?.date;
-      creationDate = firstCommit;
-      const currentDate = new Date();
-      const threeMonthsAgo = new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth() - 3,
-        currentDate.getDate()
-      );
-      if (creationDate) {
-        return new Date(creationDate) > threeMonthsAgo;
-      }
-    })
-    .catch((err) => {
-      vscode.window.showErrorMessage(
-        "Error retreiving logs .Please initialize git.",
-        err
-      );
+  const currentDate = new Date();
+  const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
+  try {
+    const result = execSync('git log --pretty=format:%ad --date=iso-strict --reverse --max-parents=0', {
+      cwd: repoPath,
+      encoding: 'utf-8'
     });
-  return false;
+
+    const firstCommitCreationDate = result.trim();
+
+    return new Date(firstCommitCreationDate) > threeMonthsAgo;
+  } catch (error) {
+    const creationDate = fs.statSync(packageJsonPath).birthtime;
+    return creationDate > threeMonthsAgo;
+  }
+
 };
 
 export const isMarkedParserFound = (packageJsonPath: string) => {
@@ -175,10 +162,10 @@ export const isCmsToolInstalled = () => {
   const projectDirectoryPath =
     vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
-  const htaccessFiles = glob.sync("**/.htaccess", {
+  const htaccessFiles = glob.sync('**/.htaccess', {
     cwd: projectDirectoryPath,
     nodir: true,
-    ignore: "**/node_modules/**",
+    ignore: '**/node_modules/**'
   });
   return htaccessFiles.length > 0;
 };
@@ -195,7 +182,7 @@ export const checkForMicroFrontendSignal = () => {
     if (
       (isReactProject(packageJsonPath) ||
         isReactNativeProject(packageJsonPath)) &&
-      isNewlyCreated()
+      isNewlyCreated(packageJsonPath)
     ) {
       return true;
     }
