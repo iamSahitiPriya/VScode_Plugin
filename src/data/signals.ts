@@ -1,4 +1,5 @@
 import Signal from "../models/Signal";
+import { checkForMicroFrontendSignal } from "../presentation/helper";
 
 export default [
   //signal1
@@ -80,5 +81,13 @@ export default [
     "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g128dad69f88_0_75",
     [],
     []
-  )
+  ),
+  new Signal(
+    "Micro front-ends for multiple teams",
+    "Micro front-ends is a way to manage the complexity of multiple developers and teams contributing to the same user experience.",
+    "https://docs.google.com/presentation/d/15Bw1qwvfuJ3bswOUS0HvNJbR2EVmHLtPk_cWNWuLVf0/edit#slide=id.g1c12b2d54dd_0_71",
+    [],
+    [],
+    checkForMicroFrontendSignal()
+  ),
 ];
