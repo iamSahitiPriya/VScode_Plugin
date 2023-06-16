@@ -1,11 +1,10 @@
 import * as vscode from "vscode";
 import Signal from "../models/Signal";
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from "path";
+import * as fs from "fs";
 import glob = require("glob");
-import simpleGit, { ListLogSummary } from 'simple-git';
 import { execSync } from 'child_process';
-
+import simpleGit, { LogResult } from "simple-git";
 
 let promiseResult:boolean[] = [];
 export const getCommentDecorationsOptions = (
@@ -75,32 +74,28 @@ export const getCodeTriggerRanges = (
 };
 
 export const jamStackSignal = () => {
-  let isJamStackTriggered;
   const rootPath = vscode.workspace.rootPath;
   if (rootPath) {
-    const packageJson = glob.sync('**/package.json', {
+    const packageJson = glob.sync("**/package.json", {
       cwd: rootPath,
       nodir: true,
-      ignore: '**/node_modules/**'
+      ignore: "**/node_modules/**",
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
-    isJamStackTriggered = isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();      
-  }  
-  return isJamStackTriggered;
+    return (
+      isNewlyCreated(packageJsonPath) ||
+      isMarkedParserFound(packageJsonPath) ||
+      isCmsToolInstalled()
+    );
+  }
+  return false;
 };
-
 
 export const getActiveSignalsFromFileTriggers = (
   editor: vscode.TextEditor,
   signals: Signal[]
 ) => {
   const activeSignals: Signal[] = [];
-  if (jamStackSignal()) {
-    const jamStackSignal = signals.find(eachSignal => eachSignal.name = "JAMStack for content-heavy sites");
-    if (jamStackSignal) {
-      activeSignals.push(jamStackSignal);
-    }
-  }
   const fileName = editor.document.fileName;
   for (const signal of signals) {
     const triggers = signal.fileTriggers;
@@ -109,6 +104,11 @@ export const getActiveSignalsFromFileTriggers = (
         activeSignals.push(signal);
         break;
       }
+    }
+    const triggerFunction = signal.triggerFunction;
+    if (triggerFunction) {
+      activeSignals.push(signal);
+      break;
     }
   }
   return activeSignals;
@@ -132,7 +132,6 @@ export const isNewlyCreated = (packageJsonPath:string) => {
   const repoPath = vscode.workspace.rootPath;
 
   const git = simpleGit(repoPath);
-  let val:boolean = false;
 
   const currentDate = new Date();
   const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
@@ -150,30 +149,18 @@ export const isNewlyCreated = (packageJsonPath:string) => {
     return creationDate > threeMonthsAgo;
   }
 
-
-  // const commitHistory: ListLogSummary = git.log();
-  
-  // await git.log(['--reverse']).then((log: LogResult) => {
-  //   const firstCommit = log.latest?.date;
-  //   creationDate = firstCommit;
-  //   if (creationDate) {
-  //     val = new Date(creationDate) > threeMonthsAgo;
-  //   }
-  // }).catch((_err) => {
-  //   const creationDate = fs.statSync(packageJsonPath).birthtime;
-  //   val =  creationDate > threeMonthsAgo;
-  // });
-  // return val;
 };
 
 export const isMarkedParserFound = (packageJsonPath: string) => {
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-  const isDependencyAdded = packageJson.dependencies && packageJson.dependencies['marked'];
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+  const isDependencyAdded =
+    packageJson.dependencies && packageJson.dependencies["marked"];
   return isDependencyAdded;
 };
 
 export const isCmsToolInstalled = () => {
-  const projectDirectoryPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+  const projectDirectoryPath =
+    vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
   const htaccessFiles = glob.sync('**/.htaccess', {
     cwd: projectDirectoryPath,
@@ -181,4 +168,117 @@ export const isCmsToolInstalled = () => {
     ignore: '**/node_modules/**'
   });
   return htaccessFiles.length > 0;
+};
+export const checkForMicroFrontendSignal = () => {
+  if (vscode.workspace.workspaceFolders) {
+    // Checking if react or react native project and project is new
+    let rootPath = vscode.workspace.workspaceFolders[0].uri.path;
+    let packageJson = glob.sync("**/package.json", {
+      cwd: rootPath,
+      nodir: true,
+      ignore: "**/node_modules/**",
+    });
+    const packageJsonPath = path.join(rootPath, packageJson[0]);
+    if (
+      (isReactProject(packageJsonPath) ||
+        isReactNativeProject(packageJsonPath)) &&
+      isNewlyCreated(packageJsonPath)
+    ) {
+      return true;
+    }
+
+    // Checking if project contains many pages or screens
+    let jsFiles = glob.sync("./src/**/*.{js,jsx,ts,tsx}", {
+      cwd: rootPath,
+      nodir: true,
+      ignore: "**/node_modules/**",
+    });
+
+    const maxFileCount =
+      parseInt(process.env.MICROFRONTEND_MAX_FILES_COUNT!) || 50;
+    if (jsFiles.length >= maxFileCount) return true;
+
+    // Checking if project is a big monolith
+    if (isProjectABigMonolith(rootPath)) {
+      return true;
+    }
+
+    // Checking if project has webpack config
+    // and has Module Federation Plugin injected to it
+    if (hasModuleFederationPlugin(rootPath)) {
+      return true;
+    }
+
+    // check if project has MFE libraries added
+    if (hasMFELibraries(packageJsonPath)) {
+      return true;
+    }
+  }
+
+  return false;
+
+  function isReactProject(packageJsonPath: string) {
+    let data = fs.readFileSync(packageJsonPath, "utf-8");
+    return data.includes("react");
+  }
+
+  function isReactNativeProject(packageJsonPath: string) {
+    let data = fs.readFileSync(packageJsonPath, "utf-8");
+    return data.includes("react-native");
+  }
+
+  function isProjectABigMonolith(rootPath: string) {
+    let files = glob.sync("./src/**/*.{js,jsx,ts,tsx}", {
+      cwd: rootPath,
+      nodir: true,
+      ignore: "**/node_modules/**",
+    });
+
+    let currentLineCount = 0;
+    for (const file of files) {
+      let codeLines = fs.readFileSync(
+        rootPath.concat(`/${file.substring(1)}`),
+        "utf-8"
+      );
+      currentLineCount += codeLines.split("\n").length;
+    }
+
+    const maxLineCount =
+      parseInt(process.env.MICROFRONTEND_MAX_FILES_COUNT!) || 5000;
+    return currentLineCount >= maxLineCount;
+  }
+
+  function hasModuleFederationPlugin(rootPath: string) {
+    // check if webpack.config.js exists
+    let webpackFile = glob.sync("**/webpack.config.js", {
+      cwd: rootPath,
+      nodir: true,
+      ignore: "**/node_modules/**",
+    });
+    if (webpackFile.length > 0) {
+      // When exists, check if it hash module federation plugin injected into it
+      let webpackCode = fs.readFileSync(
+        rootPath.concat(`/${webpackFile[0]}`),
+        "utf-8"
+      );
+      if (webpackCode.includes("ModuleFederationPlugin")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function hasMFELibraries(packageJsonPath: string) {
+    let data = fs.readFileSync(packageJsonPath, "utf-8");
+    let mfeLibraryIdentifiers = [
+      "teambit",
+      "single-spa",
+      "piral-instance",
+      "qiankun",
+    ];
+    return mfeLibraryIdentifiers.some((identifier) =>
+      data.includes(identifier)
+    );
+  }
 };
