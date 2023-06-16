@@ -87,25 +87,6 @@ export const jamStackSignal = () => {
     );
   }
   return false;
-
-  function isMarkedParserFound(packageJsonPath: string) {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-    const isDependencyAdded =
-      packageJson.dependencies && packageJson.dependencies["marked"];
-    return isDependencyAdded;
-  }
-
-  function isCmsToolInstalled() {
-    const projectDirectoryPath =
-      vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-
-    const htaccessFiles = glob.sync("**/.htaccess", {
-      cwd: projectDirectoryPath,
-      nodir: true,
-      ignore: "**/node_modules/**",
-    });
-    return htaccessFiles.length > 0;
-  }
 };
 
 export const getActiveSignalsFromFileTriggers = (
