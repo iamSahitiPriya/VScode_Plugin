@@ -81,26 +81,12 @@ export const jamStackSignal = () => {
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
     return (
-      isNewlyCreated(packageJsonPath) ||
+      isNewlyCreated() ||
       isMarkedParserFound(packageJsonPath) ||
       isCmsToolInstalled()
     );
   }
   return false;
-
-  function isNewlyCreated(packageJsonPath: string) {
-    // const creationDate = fs.statSync(packageJsonPath).birthtime;
-    // const currentDate = new Date();
-    //const threeMonthsAgo = new Date(
-    //  currentDate.getFullYear(),
-    //  currentDate.getMonth() - 3,
-    //  currentDate.getDate()
-    //);
-    // console.log("cdate", creationDate);
-    // console.log("3date", threeMonthsAgo);
-    //return creationDate > threeMonthsAgo;
-    return false;
-  }
 
   function isMarkedParserFound(packageJsonPath: string) {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
@@ -225,13 +211,13 @@ export const checkForMicroFrontendSignal = () => {
       ignore: "**/node_modules/**",
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
-    /* if (
+    if (
       (isReactProject(packageJsonPath) ||
         isReactNativeProject(packageJsonPath)) &&
-      isNewlyCreated(packageJsonPath)
+      isNewlyCreated()
     ) {
       return true;
-    } */
+    }
 
     // Checking if project contains many pages or screens
     let jsFiles = glob.sync("./src/**/*.{js,jsx,ts,tsx}", {
