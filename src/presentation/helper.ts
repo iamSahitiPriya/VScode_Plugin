@@ -3,9 +3,11 @@ import Signal from "../models/Signal";
 import * as path from 'path';
 import * as fs from 'fs';
 import glob = require("glob");
-import simpleGit, { LogResult } from 'simple-git';
+import simpleGit, { ListLogSummary } from 'simple-git';
+import { execSync } from 'child_process';
 
 
+let promiseResult:boolean[] = [];
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
   map: Map<number, number>
@@ -73,6 +75,7 @@ export const getCodeTriggerRanges = (
 };
 
 export const jamStackSignal = () => {
+  let isJamStackTriggered;
   const rootPath = vscode.workspace.rootPath;
   if (rootPath) {
     const packageJson = glob.sync('**/package.json', {
@@ -81,9 +84,9 @@ export const jamStackSignal = () => {
       ignore: '**/node_modules/**'
     });
     const packageJsonPath = path.join(rootPath, packageJson[0]);
-    return isNewlyCreated() || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();
-  }
-  return false;
+    isJamStackTriggered = isNewlyCreated(packageJsonPath) || isMarkedParserFound(packageJsonPath) || isCmsToolInstalled();      
+  }  
+  return isJamStackTriggered;
 };
 
 
@@ -125,24 +128,42 @@ export const removeActiveSignals = async (
   }
 };
 
-export const isNewlyCreated = () => {
-  let creationDate: string | undefined = '';
+export const isNewlyCreated = (packageJsonPath:string) => {
   const repoPath = vscode.workspace.rootPath;
 
   const git = simpleGit(repoPath);
+  let val:boolean = false;
 
-  git.log(['--reverse']).then((log: LogResult) => {
-    const firstCommit = log.latest?.date;
-    creationDate = firstCommit;
-    const currentDate = new Date();
-    const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
-    if (creationDate) {
-      return new Date(creationDate) > threeMonthsAgo;
-    }
-  }).catch((err) => {
-    vscode.window.showErrorMessage('Error retreiving logs .Please initialize git.', err);
-  });
-  return false;
+  const currentDate = new Date();
+  const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
+  try {
+    const result = execSync('git log --pretty=format:%ad --date=iso-strict --reverse --max-parents=0', {
+      cwd: repoPath,
+      encoding: 'utf-8'
+    });
+
+    const firstCommitCreationDate = result.trim();
+
+    return new Date(firstCommitCreationDate) > threeMonthsAgo;
+  } catch (error) {
+    const creationDate = fs.statSync(packageJsonPath).birthtime;
+    return creationDate > threeMonthsAgo;
+  }
+
+
+  // const commitHistory: ListLogSummary = git.log();
+  
+  // await git.log(['--reverse']).then((log: LogResult) => {
+  //   const firstCommit = log.latest?.date;
+  //   creationDate = firstCommit;
+  //   if (creationDate) {
+  //     val = new Date(creationDate) > threeMonthsAgo;
+  //   }
+  // }).catch((_err) => {
+  //   const creationDate = fs.statSync(packageJsonPath).birthtime;
+  //   val =  creationDate > threeMonthsAgo;
+  // });
+  // return val;
 };
 
 export const isMarkedParserFound = (packageJsonPath: string) => {
