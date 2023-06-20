@@ -4,9 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import glob = require("glob");
 import { execSync } from 'child_process';
-import simpleGit, { LogResult } from "simple-git";
 
-let promiseResult:boolean[] = [];
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
   map: Map<number, number>
@@ -128,10 +126,8 @@ export const removeActiveSignals = async (
   }
 };
 
-export const isNewlyCreated = (packageJsonPath:string) => {
+export const isNewlyCreated = (packageJsonPath: string) => {
   const repoPath = vscode.workspace.rootPath;
-
-  const git = simpleGit(repoPath);
 
   const currentDate = new Date();
   const threeMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 3, currentDate.getDate());
