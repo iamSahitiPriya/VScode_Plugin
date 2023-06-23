@@ -11,7 +11,7 @@ export const commentDecorationType =
     after: {
       margin: "0 0 0 1em",
       contentText:
-        "Found related default documents. Hover over the highted text to get more info...",
+        "Found related #default signals. Hover over the higlighted text to get more info...",
       fontStyle: "italic",
       color: "gray",
     },
