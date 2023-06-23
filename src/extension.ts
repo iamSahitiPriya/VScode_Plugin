@@ -17,6 +17,7 @@ import notifyOnFileTriggers from "./presentation/fileTriggerStyles";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
+let isTriggered = false;
 function setSignals(context: vscode.ExtensionContext) {
   context.workspaceState.update("signals", signals);
 }
@@ -24,7 +25,9 @@ function setSignals(context: vscode.ExtensionContext) {
 export function activate(context: vscode.ExtensionContext) {
   setSignals(context);
   addCommandToRemoveSignal(context);
-  addCommandToOpenDocument(context);
+  if (!isTriggered) {
+    addCommandToOpenDocument(context);
+  }
   addCommandToOpenQuickPicks(context);
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -41,7 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Listen for text document open events
   vscode.workspace.onDidOpenTextDocument((document) => {
-    openDocumentHandler(document, context);
+    if (!isTriggered) {
+      isTriggered = true;
+      openDocumentHandler(document, context);
+    }
   });
 
   // Listen for text document change events
@@ -51,11 +57,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Listen for text editor change events
   vscode.window.onDidChangeActiveTextEditor((editor) => {
-    if (editor) {
+    if (editor && !isTriggered) {
       activeTextEditorChangeHandler(editor, context);
     }
   });
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

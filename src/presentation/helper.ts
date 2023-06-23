@@ -106,7 +106,6 @@ export const getActiveSignalsFromFileTriggers = (
     const triggerFunction = signal.triggerFunction;
     if (triggerFunction) {
       activeSignals.push(signal);
-      break;
     }
   }
   return activeSignals;
