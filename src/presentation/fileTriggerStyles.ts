@@ -12,17 +12,17 @@ export default async function notifyOnFileTriggers(
   const activeSignals = getActiveSignalsFromFileTriggers(editor, signals);
   if (activeSignals.length > 0) {
     const result = await vscode.window.showInformationMessage(
-      "Found default document related to this file",
-      "View Signals",
-      "Ignore All Signal"
+      "Found #default signal(s) related to this project",
+      "View signals",
+      "Ignore all signal(s)"
     );
     if (!result) {
       return;
     }
-    if (result === "Ignore All Signal") {
+    if (result === "Ignore all signal(s)") {
       removeActiveSignals(activeSignals, context);
     }
-    if (result === "View Signals") {
+    if (result === "View signals") {
       vscode.commands.executeCommand(
         "sensible-default.openQuickPicks",
         activeSignals
