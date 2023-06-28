@@ -4,7 +4,6 @@ import * as path from "path";
 import * as fs from "fs";
 import glob = require("glob");
 import { execSync } from 'child_process';
-import simpleGit, { LogResult } from 'simple-git';
 
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
@@ -278,30 +277,4 @@ export const checkForMicroFrontendSignal = () => {
     );
   }
 };
-async function getCurrentBranch() {
-  try {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      throw new Error('No workspace folder found.');
-    }
-    const git = simpleGit(workspaceFolders[0].uri.fsPath);
-    const branchSummary = await git.status();
-    const currentBranch = branchSummary.current;
-    return currentBranch;
-  } catch (error) {
-    console.error('Failed to get current branch:', error);
-    return null;
-  }
-}
-
-getCurrentBranch()
-  .then((currentBranch) => {
-    if(currentBranch !== null)
-      {
-        // vscode.window.showInformationMessage("Current Branch: "+ currentBranch);
-      }
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
 
