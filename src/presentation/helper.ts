@@ -297,7 +297,9 @@ async function getCurrentBranch() {
 getCurrentBranch()
   .then((currentBranch) => {
     if(currentBranch !== null)
-      {vscode.window.showInformationMessage("Current Branch: "+ currentBranch);}
+      {
+        // vscode.window.showInformationMessage("Current Branch: "+ currentBranch);
+      }
   })
   .catch((error) => {
     console.error('Error:', error);
