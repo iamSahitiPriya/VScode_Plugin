@@ -1,4 +1,4 @@
-import simpleGit, { LogResult } from 'simple-git';
+import simpleGit from 'simple-git';
 import * as vscode from "vscode";
 
 async function getCurrentBranch() {
@@ -10,20 +10,31 @@ async function getCurrentBranch() {
       const git = simpleGit(workspaceFolders[0].uri.fsPath);
       const branchSummary = await git.status();
       const currentBranch = branchSummary.current;
-      return currentBranch;
+      if(currentBranch)
+        {
+            console.log(currentBranch);
+            vscode.window.showInformationMessage("Current Branch: "+currentBranch);
+        }
     } catch (error) {
       console.error('Failed to get current branch:', error);
-      return null;
     }
   }
   
-  getCurrentBranch()
-    .then((currentBranch) => {
-      if(currentBranch !== null)
-        {
-          // vscode.window.showInformationMessage("Current Branch: "+ currentBranch);
+    function startBranchCheck(): void {
+        console.log("hello");
+        
+        // Clear the previous interval if any
+        let intervalId: string | number | NodeJS.Timeout | undefined;
+        if (intervalId) {
+          clearInterval(intervalId);
         }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      
+        // Initial check
+        getCurrentBranch();
+      
+        // Schedule periodic checks
+        intervalId = setInterval(getCurrentBranch, 10 *1000); // 8 hours
+      }
+      startBranchCheck();
+  
+  
