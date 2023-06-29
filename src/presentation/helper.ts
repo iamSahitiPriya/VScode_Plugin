@@ -4,6 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import glob = require("glob");
 import { execSync } from 'child_process';
+import simpleGit from 'simple-git';
 
 export const getCommentDecorationsOptions = (
   editor: vscode.TextEditor,
@@ -277,4 +278,6 @@ export const checkForMicroFrontendSignal = () => {
     );
   }
 };
+
+
 

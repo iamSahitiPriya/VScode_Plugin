@@ -12,6 +12,7 @@ import {
   openDocumentHandler,
   textChangeHandler,
 } from "./handlers/handlers";
+import { startBranchCheck } from "./sdp/git";
 import notifyOnFileTriggers from "./presentation/fileTriggerStyles";
 
 // This method is called when your extension is activated
@@ -37,7 +38,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   if (editor) {
     if (SupportedLanguages.isSupportedLanguage(editor.document.languageId)) {
-      notifyOnFileTriggers(editor, context);
+      startBranchCheck();
+      notifyOnFileTriggers(editor, context); 6
       addStylesToCodeTriggers(editor, context);
     }
   }
