@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
   if (editor) {
     if (SupportedLanguages.isSupportedLanguage(editor.document.languageId)) {
       startBranchCheck();
-      notifyOnFileTriggers(editor, context); 6
+      notifyOnFileTriggers(editor, context);
       addStylesToCodeTriggers(editor, context);
     }
   }
